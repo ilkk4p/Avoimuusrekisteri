@@ -75,11 +75,18 @@ tr.sel{background:var(--accent-soft)}
 .terms .b{width:100%;background:var(--bar);border-radius:2px 2px 0 0}
 .terms .t{color:var(--muted);margin-top:3px;text-align:center;line-height:1.15}
 .rank{width:34px;color:var(--muted);font-variant-numeric:tabular-nums}
+.themebar{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding-top:14px;font-size:13px;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:transparent;padding:4px 12px;cursor:pointer;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--onaccent)}
 .tag{display:inline-block;font-size:11.5px;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted);margin-left:4px;vertical-align:1px}
 </style>
 </head>
 <body>
 <div class="wrap">
+<div class="themebar" role="group" aria-label="Teema"><span>Teema</span>
+  <div class="seg"><button data-theme-set="auto" aria-pressed="true">Auto</button><button data-theme-set="light" aria-pressed="false">Vaalea</button><button data-theme-set="dark" aria-pressed="false">Tumma</button></div>
+</div>
 <header>
   <h1>Lobbaus eduskunnassa ja ministeriöissä</h1>
   <p class="sub">Avoimuusrekisteriin ilmoitetut vaikuttamistoiminnan kohteet eduskunnassa ja ministeriöissä: ryhmittäin, henkilöittäin ja lobbaajittain. Ilmoituskaudet huhtikuusta 2024 kesäkuuhun 2026.</p>
@@ -103,7 +110,7 @@ tr.sel{background:var(--accent-soft)}
   <p><b>Mitä luvut tarkoittavat.</b> Aihe-luku kertoo, monessako ilmoitetussa vaikuttamisaiheessa henkilö oli kohteena. Se ei ole yhteydenottojen määrä, koska yhdessä aiheessa voi olla useita tapaamisia. Pienimuotoinen vaikuttaminen (alle kuusi yhteydenottoa vuodessa) ei näy rekisterissä.</p>
   <p><b>Henkilöt ja tyypit.</b> Sama henkilö voi olla kohteena usealla rivillä, esimerkiksi kansanedustajana ja ministerinä eri ministeriöissä. Henkilön rivit on yhdistetty nimen perusteella, ja tyyppirajaus suodattaa rivejä, ei henkilöitä. Oletuksena mukana ovat kansanedustajat ja ministerit. Top-lista kokoaa kaikki nimetyt henkilöt kaikista tyypeistä.</p>
   <p><b>Puolue.</b> Rekisterissä kohteen puolue on eduskuntaryhmä. Osalla aiemmista kausista ryhmää ei ole kirjattu, ja ne on yhdistetty nimen perusteella muilta kausilta. Ministereille, joiden ryhmää rekisteri ei kerro, ryhmä on täydennetty hallituksen kokoonpanosta, joten se ei perustu rekisterin tietoon. Jos ryhmää ei saatu selvitettyä, henkilö näkyy kohdassa "ei tiedossa".</p>
-  <p><b>Painotus.</b> Osa järjestöistä ilmoittaa koko eduskuntaryhmän tai ministeriön johdon kohteeksi kerralla, mikä nostaa lukuja. Ne kertovat ilmoitustavasta yhtä paljon kuin aktiivisuudesta. Lähde: Valtiontalouden tarkastusviraston avoimuusrekisterin avoin data.</p>
+  <p><b>Painotus.</b> Osa järjestöistä ilmoittaa koko eduskuntaryhmän tai ministeriön johdon kohteeksi kerralla, mikä nostaa lukuja. Ne kertovat ilmoitustavasta yhtä paljon kuin aktiivisuudesta. Lähde: Valtiontalouden tarkastusviraston <a href="https://www.avoimuusrekisteri.fi/perustietoa/avoin-data" target="_blank" rel="noopener">avoimuusrekisterin avoin data</a>, lisenssi <a href="https://creativecommons.org/licenses/by/4.0/deed.fi" target="_blank" rel="noopener">CC BY 4.0</a>. Tiedot on haettu rajapinnasta ja yhdistetty henkilöittäin, eikä Valtiontalouden tarkastusvirasto ole tarkastanut tai hyväksynyt tätä sivua.</p>
 </div>
 </div>
 
@@ -313,6 +320,17 @@ function init(){
   });
   render();
 }
+
+(function(){
+  const root=document.documentElement;
+  function apply(m){
+    if(m==='light'||m==='dark')root.setAttribute('data-theme',m);else root.removeAttribute('data-theme');
+    document.querySelectorAll('[data-theme-set]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.themeSet===m?'true':'false'));
+  }
+  let saved='auto';try{saved=localStorage.getItem('theme')||'auto';}catch(e){}
+  apply(saved);
+  document.querySelectorAll('[data-theme-set]').forEach(b=>b.addEventListener('click',()=>{apply(b.dataset.themeSet);try{localStorage.setItem('theme',b.dataset.themeSet);}catch(e){}}));
+})();
 
 fetch('data.json').then(r=>r.json()).then(d=>{D=d;init();}).catch(()=>{$('#main').innerHTML='<p class="empty">Tietojen lataus epäonnistui. Avaa sivu uudelleen.</p>';});
 </script>
