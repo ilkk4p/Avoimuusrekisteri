@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lobbaus eduskunnassa ja ministeriöissä</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: filters on top, tab views below; one teal accent for data, grey for context */
+:root{
+  --bg:#f4f5f3; --panel:#ffffff; --ink:#1b2422; --muted:#5d6a66; --line:#dde2df;
+  --accent:#0f6b63; --accent-soft:#d6ebe8; --bar:#7fb8b1; --onaccent:#ffffff;
+  --display:'Bitter',Georgia,serif; --body:'Public Sans',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1514; --panel:#172120; --ink:#e6eeec; --muted:#9bb0ab; --line:#2a3836;
+  --accent:#5cc7bb; --accent-soft:#1f3a37; --bar:#2f6d66; --onaccent:#06201d; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0f1514; --panel:#172120; --ink:#e6eeec; --muted:#9bb0ab; --line:#2a3836;
+  --accent:#5cc7bb; --accent-soft:#1f3a37; --bar:#2f6d66; --onaccent:#06201d; color-scheme:dark;}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--body);padding:0 16px 48px}
+.wrap{max-width:1180px;margin:0 auto}
+header{padding:28px 0 12px}
+h1{font:700 30px/1.15 var(--display);margin:0 0 6px;text-wrap:balance}
+.sub{color:var(--muted);max-width:75ch;margin:0}
+h2{font:600 17px/1.2 var(--display);margin:0 0 12px}
+h3{font-size:14px;margin:0 0 6px}
+.controls{display:grid;gap:10px;padding:12px 0 14px;border-bottom:1px solid var(--line)}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctl>span{color:var(--muted);font-size:13px;min-width:92px}
+button,select,input{font:inherit;color:var(--ink)}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 11px;cursor:pointer;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
+.chip.ghost{border-style:dashed;color:var(--muted)}
+.tabs{display:flex;gap:4px;margin:16px 0 14px;flex-wrap:wrap}
+.tab{border:0;background:transparent;padding:8px 16px;border-bottom:3px solid transparent;cursor:pointer;font-weight:600;color:var(--muted)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible,tr:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.tile b{display:block;font:700 24px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.tile span{color:var(--muted);font-size:12.5px}
+table{border-collapse:collapse;width:100%}
+th{font-weight:600;font-size:12.5px;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th.n,td.n{text-align:right;font-variant-numeric:tabular-nums}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr.row{cursor:pointer}
+tbody tr.row:hover{background:var(--accent-soft)}
+tr.sel{background:var(--accent-soft)}
+.scroll{overflow-x:auto}
+.bar{height:10px;background:var(--bar);border-radius:2px;min-width:1px}
+.barcell{width:30%}
+.spark{display:flex;align-items:flex-end;gap:2px;height:22px}
+.spark i{display:block;width:8px;background:var(--bar);border-radius:1px 1px 0 0}
+.spark i.l{background:var(--accent)}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:6px 0;border-bottom:1px solid var(--line)}
+.list li .bar{grid-column:1/-1}
+.list .nm{overflow-wrap:anywhere}
+.list .v{font-variant-numeric:tabular-nums;font-weight:600}
+.search{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel);margin-bottom:10px}
+.note{margin-top:20px;color:var(--muted);font-size:13px;max-width:90ch}
+.note p{margin:0 0 8px}
+.empty{color:var(--muted);padding:12px 0}
+.terms{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-items:end;height:90px;margin:6px 0 14px}
+.terms div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:12px}
+.terms .b{width:100%;background:var(--bar);border-radius:2px 2px 0 0}
+.terms .t{color:var(--muted);margin-top:3px;text-align:center;line-height:1.15}
+.rank{width:34px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-size:11.5px;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted);margin-left:4px;vertical-align:1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Lobbaus eduskunnassa ja ministeriöissä</h1>
+  <p class="sub">Avoimuusrekisteriin ilmoitetut vaikuttamistoiminnan kohteet eduskunnassa ja ministeriöissä: ryhmittäin, henkilöittäin ja lobbaajittain. Ilmoituskaudet huhtikuusta 2024 kesäkuuhun 2026.</p>
+</header>
+
+<div class="controls" role="group" aria-label="Rajaukset">
+  <div class="ctl" id="termCtl"><span>Kausi</span></div>
+  <div class="ctl" id="typeCtl"><span>Kohteen tyyppi</span></div>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="tabParty" aria-selected="true">Puolueet</button>
+  <button class="tab" role="tab" id="tabPerson" aria-selected="false">Henkilöt</button>
+  <button class="tab" role="tab" id="tabOrg" aria-selected="false">Lobbaajat</button>
+  <button class="tab" role="tab" id="tabTop" aria-selected="false">Top-lista</button>
+</div>
+
+<main id="main" aria-live="polite"></main>
+
+<div class="note">
+  <p><b>Mitä luvut tarkoittavat.</b> Aihe-luku kertoo, monessako ilmoitetussa vaikuttamisaiheessa henkilö oli kohteena. Se ei ole yhteydenottojen määrä, koska yhdessä aiheessa voi olla useita tapaamisia. Pienimuotoinen vaikuttaminen (alle kuusi yhteydenottoa vuodessa) ei näy rekisterissä.</p>
+  <p><b>Henkilöt ja tyypit.</b> Sama henkilö voi olla kohteena usealla rivillä, esimerkiksi kansanedustajana ja ministerinä eri ministeriöissä. Henkilön rivit on yhdistetty nimen perusteella, ja tyyppirajaus suodattaa rivejä, ei henkilöitä. Oletuksena mukana ovat kansanedustajat ja ministerit. Top-lista kokoaa kaikki nimetyt henkilöt kaikista tyypeistä.</p>
+  <p><b>Puolue.</b> Rekisterissä kohteen puolue on eduskuntaryhmä. Osalla aiemmista kausista ryhmää ei ole kirjattu, ja ne on yhdistetty nimen perusteella muilta kausilta. Ministereille, joiden ryhmää rekisteri ei kerro, ryhmä on täydennetty hallituksen kokoonpanosta, joten se ei perustu rekisterin tietoon. Jos ryhmää ei saatu selvitettyä, henkilö näkyy kohdassa "ei tiedossa".</p>
+  <p><b>Painotus.</b> Osa järjestöistä ilmoittaa koko eduskuntaryhmän tai ministeriön johdon kohteeksi kerralla, mikä nostaa lukuja. Ne kertovat ilmoitustavasta yhtä paljon kuin aktiivisuudesta. Lähde: Valtiontalouden tarkastusviraston avoimuusrekisterin avoin data.</p>
+</div>
+</div>
+
+<script>
+const TERMS={1:'huhti–kesä 2024',2:'heinä–joulu 2024',3:'tammi–kesä 2025',4:'heinä–joulu 2025',5:'tammi–kesä 2026'};
+const TSHORT={1:'Q2/24',2:'H2/24',3:'H1/25',4:'H2/25',5:'H1/26'};
+const DEFTYPES=['Kansanedustaja','Ministeri'];
+const S={terms:new Set([1,2,3,4,5]),types:new Set(),tab:'party',party:null,person:null,q:'',pf:'',org:null,qo:'',ind:'',topq:''};
+let D=null;
+const $=s=>document.querySelector(s);
+const esc=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nf=n=>n.toLocaleString('fi-FI');
+const pname=p=>p.replace(' eduskuntaryhmä','').replace('Eduskuntaryhmä ','Ryhmä ').replace('Kristillisdemokraattinen','Kristillisdemokraatit').replace('Sosialidemokraattinen','SDP').replace('Kokoomuksen','Kokoomus').replace('Perussuomalaisten','Perussuomalaiset').replace('Keskustan','Keskusta').replace('Vasemmistoliiton','Vasemmistoliitto').replace('Vihreä','Vihreät').replace('Ruotsalainen','RKP');
+const oname=o=>o.split(/;| - |, ruotsiksi/)[0].trim();
+const PE=i=>D.people[i];
+const partyOf=r=>PE(r[2])[1];
+
+function rows(){
+  return D.rows.filter(r=>S.terms.has(r[0])&&S.types.has(r[1]));
+}
+function agg(rs,keyFn){
+  const m=new Map();
+  for(const r of rs){
+    const k=keyFn(r);let a=m.get(k);
+    if(!a){a={k,n:0,orgs:new Set(),people:new Set(),bt:[0,0,0,0,0,0]};m.set(k,a);}
+    a.n+=r[4];a.orgs.add(r[3]);a.people.add(r[2]);a.bt[r[0]]+=r[4];
+  }
+  return [...m.values()];
+}
+function spark(bt){
+  const mx=Math.max(1,...bt.slice(1));
+  return '<div class="spark" title="'+[1,2,3,4,5].map(t=>TSHORT[t]+': '+nf(bt[t])).join(', ')+'">'+[1,2,3,4,5].map(t=>'<i class="'+(t===5?'l':'')+'" style="height:'+Math.max(2,Math.round(22*bt[t]/mx))+'px"></i>').join('')+'</div>';
+}
+function termBars(a){
+  const bm=Math.max(1,...a.bt.slice(1));
+  return '<div class="terms">'+[1,2,3,4,5].map(t=>'<div><span>'+nf(a.bt[t])+'</span><div class="b" style="height:'+Math.round(60*a.bt[t]/bm)+'px"></div><span class="t">'+TSHORT[t]+'</span></div>').join('')+'</div>';
+}
+function orgList(rs,limit){
+  const m=new Map();
+  for(const r of rs){let a=m.get(r[3]);if(!a){a={k:r[3],n:0};m.set(r[3],a);}a.n+=r[4];}
+  const t=[...m.values()].sort((a,b)=>b.n-a.n).slice(0,limit);
+  if(!t.length)return '<div class="empty">Ei tietoja valituilla rajauksilla.</div>';
+  const mx=t[0].n;
+  return '<ul class="list">'+t.map(a=>{const o=D.orgs[a.k];return '<li><span class="nm" title="'+esc(o[1])+'">'+esc(oname(o[1]))+'<br><span class="muted small">'+esc(D.industries[o[2]]||'')+'</span></span><span class="v">'+nf(a.n)+'</span><div class="bar" style="width:'+(100*a.n/mx)+'%"></div></li>';}).join('')+'</ul>';
+}
+function pTag(p){return '';}
+function personList(rs,limit,withParty){
+  const a=agg(rs,r=>r[2]).sort((x,y)=>y.n-x.n).slice(0,limit);
+  if(!a.length)return '<div class="empty">Ei tietoja valituilla rajauksilla.</div>';
+  const mx=a[0].n;
+  return '<ul class="list">'+a.map(x=>{const p=PE(x.k);return '<li style="cursor:pointer" data-person="'+x.k+'"><span class="nm"><b>'+esc(p[0])+'</b>'+(withParty?' <span class="muted small">'+esc(pname(D.parties[p[1]]))+'</span>':'')+'<br><span class="muted small">'+esc(p[2]||p[3])+' · '+nf(x.orgs.size)+' lähestyjää</span></span><span class="v">'+nf(x.n)+'</span><div class="bar" style="width:'+(100*x.n/mx)+'%"></div></li>';}).join('')+'</ul>';
+}
+function typeBreakdown(personIdx){
+  const m=new Map();
+  for(const r of D.rows){ if(r[2]!==personIdx||!S.terms.has(r[0]))continue; m.set(r[1],(m.get(r[1])||0)+r[4]); }
+  const t=[...m].sort((a,b)=>b[1]-a[1]);if(!t.length)return '';
+  return '<h3>Kohteena tyypeittäin (kaikki tyypit)</h3><ul class="list">'+t.map(([i,n])=>'<li><span class="nm">'+esc(D.types[i])+'</span><span class="v">'+nf(n)+'</span></li>').join('')+'</ul>';
+}
+
+function viewParty(){
+  const rs=rows();
+  const parties=agg(rs,partyOf).sort((a,b)=>b.n-a.n);
+  const mx=parties.length?parties[0].n:1;
+  const total=rs.reduce((s,r)=>s+r[4],0);
+  const orgs=new Set(rs.map(r=>r[3])).size, people=new Set(rs.map(r=>r[2])).size;
+  let h='<div class="tiles"><div class="tile"><b>'+nf(total)+'</b><span>aihe-kohdelinkkiä</span></div><div class="tile"><b>'+nf(people)+'</b><span>henkilöä</span></div><div class="tile"><b>'+nf(orgs)+'</b><span>lähestyjää</span></div></div>';
+  h+='<div class="grid"><section class="panel"><h2>Eduskuntaryhmät</h2><div class="scroll"><table><thead><tr><th>Ryhmä</th><th class="n">Aiheita</th><th></th><th class="n">Henkilöitä</th><th class="n">Lähestyjiä</th><th class="n">Aiheita / hlö</th><th>Kehitys</th></tr></thead><tbody>';
+  for(const p of parties){
+    const sel=S.party===p.k?' sel':'';
+    h+='<tr class="row'+sel+'" tabindex="0" data-party="'+p.k+'"><td><b>'+esc(pname(D.parties[p.k]))+'</b></td><td class="n">'+nf(p.n)+'</td><td class="barcell"><div class="bar" style="width:'+(100*p.n/mx)+'%"></div></td><td class="n">'+nf(p.people.size)+'</td><td class="n">'+nf(p.orgs.size)+'</td><td class="n">'+nf(Math.round(p.n/p.people.size))+'</td><td>'+spark(p.bt)+'</td></tr>';
+  }
+  h+='</tbody></table></div><p class="muted small" style="margin:10px 0 0">Kehitys-pylväät: kaudet 1–5, viimeisin korostettu. Valitse ryhmä nähdäksesi tiedot.</p></section><section class="panel">';
+  if(S.party!==null){
+    const prs=rs.filter(r=>partyOf(r)===S.party);
+    h+='<h2>'+esc(pname(D.parties[S.party]))+'</h2><h3>Eniten lähestytyt henkilöt</h3>'+personList(prs,12,false)+'<h3 style="margin-top:16px">Eniten lähestyneet tahot</h3>'+orgList(prs,12);
+  } else {
+    h+='<h2>Eniten lähestyneet tahot</h2><p class="muted small" style="margin:0 0 6px">Kaikki ryhmät yhteensä.</p>'+orgList(rs,15);
+  }
+  return h+'</section></div>';
+}
+
+function viewPerson(){
+  const rs=rows();
+  const people=agg(rs,r=>r[2]).sort((a,b)=>b.n-a.n);
+  const q=S.q.trim().toLowerCase();
+  const list=people.filter(x=>{const p=PE(x.k);return (!q||p[0].toLowerCase().includes(q))&&(S.pf===''||String(p[1])===S.pf);});
+  const mx=list.length?list[0].n:1;
+  let h='<div class="grid"><section class="panel"><h2>Henkilöt ('+nf(list.length)+')</h2>';
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><input class="search" style="flex:1 1 180px" id="q" type="search" placeholder="Hae nimellä" value="'+esc(S.q)+'" aria-label="Hae nimellä">';
+  h+='<select class="search" style="flex:0 1 200px" id="pf" aria-label="Ryhmä"><option value="">Kaikki ryhmät</option>'+D.parties.map((p,i)=>'<option value="'+i+'"'+(S.pf===String(i)?' selected':'')+'>'+esc(pname(p))+'</option>').join('')+'</select></div>';
+  h+='<div class="scroll" style="max-height:640px;overflow-y:auto"><table><thead><tr><th>Nimi</th><th>Ryhmä</th><th class="n">Aiheita</th><th></th><th class="n">Lähestyjiä</th><th>Kehitys</th></tr></thead><tbody>';
+  for(const x of list.slice(0,300)){
+    const p=PE(x.k);const sel=S.person===x.k?' sel':'';
+    h+='<tr class="row'+sel+'" tabindex="0" data-person="'+x.k+'"><td><b>'+esc(p[0])+'</b><br><span class="muted small">'+esc(p[2]||p[3])+'</span></td><td class="muted">'+esc(pname(D.parties[p[1]]))+pTag(x.k)+'</td><td class="n">'+nf(x.n)+'</td><td class="barcell"><div class="bar" style="width:'+(100*x.n/mx)+'%"></div></td><td class="n">'+nf(x.orgs.size)+'</td><td>'+spark(x.bt)+'</td></tr>';
+  }
+  h+='</tbody></table></div>'+(list.length>300?'<p class="muted small">Näytetään 300 ensimmäistä. Tarkenna hakua.</p>':'')+'</section><section class="panel">';
+  if(S.person!==null){
+    const p=PE(S.person);
+    const prs=rs.filter(r=>r[2]===S.person);
+    const a=agg(prs,r=>0)[0];
+    h+='<h2>'+esc(p[0])+'</h2><p class="muted" style="margin:-6px 0 8px">'+esc(p[2]||p[3])+' · '+esc(D.parties[p[1]])+pTag(S.person)+'</p>';
+    if(a){
+      h+='<div class="tiles"><div class="tile"><b>'+nf(a.n)+'</b><span>aihetta</span></div><div class="tile"><b>'+nf(a.orgs.size)+'</b><span>lähestyjää</span></div></div>'+termBars(a);
+    } else h+='<div class="empty">Ei rivejä valituilla rajauksilla. Muuta tyyppirajausta.</div>';
+    h+=typeBreakdown(S.person)+'<h3 style="margin-top:16px">Lähestyneet tahot</h3>'+orgList(prs,20);
+  } else h+='<div class="empty">Valitse henkilö vasemmalta nähdäksesi, kuka häntä on lähestynyt.</div>';
+  return h+'</section></div>';
+}
+
+function viewOrg(){
+  const rs=rows();
+  const orgs=agg(rs,r=>r[3]).sort((a,b)=>b.n-a.n);
+  const q=S.qo.trim().toLowerCase();
+  const list=orgs.filter(x=>(!q||D.orgs[x.k][1].toLowerCase().includes(q))&&(S.ind===''||String(D.orgs[x.k][2])===S.ind));
+  const mx=list.length?list[0].n:1;
+  const inds=[...new Set(orgs.map(x=>D.orgs[x.k][2]))].sort((a,b)=>(D.industries[a]||'').localeCompare(D.industries[b]||'','fi'));
+  let h='<div class="grid"><section class="panel"><h2>Lobbaajat ('+nf(list.length)+')</h2>';
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap"><input class="search" style="flex:1 1 180px" id="qo" type="search" placeholder="Hae organisaatiota" value="'+esc(S.qo)+'" aria-label="Hae organisaatiota">';
+  h+='<select class="search" style="flex:0 1 220px" id="ind" aria-label="Toimiala"><option value="">Kaikki toimialat</option>'+inds.map(i=>'<option value="'+i+'"'+(S.ind===String(i)?' selected':'')+'>'+esc(D.industries[i]||'(ei toimialaa)')+'</option>').join('')+'</select></div>';
+  h+='<div class="scroll" style="max-height:640px;overflow-y:auto"><table><thead><tr><th>Organisaatio</th><th class="n">Aiheita</th><th></th><th class="n">Henkilöitä</th><th>Kehitys</th></tr></thead><tbody>';
+  for(const x of list.slice(0,300)){
+    const o=D.orgs[x.k];const sel=S.org===x.k?' sel':'';
+    h+='<tr class="row'+sel+'" tabindex="0" data-org="'+x.k+'"><td title="'+esc(o[1])+'"><b>'+esc(oname(o[1]))+'</b><br><span class="muted small">'+esc(D.industries[o[2]]||'')+'</span></td><td class="n">'+nf(x.n)+'</td><td class="barcell"><div class="bar" style="width:'+(100*x.n/mx)+'%"></div></td><td class="n">'+nf(x.people.size)+'</td><td>'+spark(x.bt)+'</td></tr>';
+  }
+  h+='</tbody></table></div>'+(list.length>300?'<p class="muted small">Näytetään 300 ensimmäistä. Tarkenna hakua.</p>':'')+'</section><section class="panel">';
+  if(S.org!==null&&D.orgs[S.org]){
+    const prs=rs.filter(r=>r[3]===S.org);
+    const a=agg(prs,r=>0)[0];
+    h+='<h2>'+esc(oname(D.orgs[S.org][1]))+'</h2>';
+    if(!a)h+='<div class="empty">Ei tietoja valituilla rajauksilla.</div>';
+    else{
+      h+='<div class="tiles"><div class="tile"><b>'+nf(a.n)+'</b><span>aihetta</span></div><div class="tile"><b>'+nf(a.people.size)+'</b><span>kohdehenkilöä</span></div></div>'+termBars(a);
+      const bp=agg(prs,partyOf).sort((x,y)=>y.n-x.n);const pm=bp[0].n;
+      h+='<h3>Lähestytyt eduskuntaryhmät</h3><ul class="list">'+bp.map(x=>'<li style="cursor:pointer" data-party="'+x.k+'"><span class="nm"><b>'+esc(pname(D.parties[x.k]))+'</b><br><span class="muted small">'+nf(x.people.size)+' henkilöä, '+Math.round(100*x.n/a.n)+' % aiheista</span></span><span class="v">'+nf(x.n)+'</span><div class="bar" style="width:'+(100*x.n/pm)+'%"></div></li>').join('')+'</ul>';
+      h+='<h3 style="margin-top:16px">Eniten lähestytyt henkilöt</h3>'+personList(prs,15,true);
+    }
+  } else h+='<div class="empty">Valitse lobbaaja vasemmalta nähdäksesi, ketä ryhmiä ja henkilöitä se on lähestynyt.</div>';
+  return h+'</section></div>';
+}
+
+function viewTop(){
+  const rs=rows().filter(r=>!PE(r[2])[0].startsWith('(ei nimetty'));
+  const q=S.topq.trim().toLowerCase();
+  const list=agg(rs,r=>r[2]).sort((a,b)=>b.n-a.n);
+  const view=q?list.filter(x=>PE(x.k)[0].toLowerCase().includes(q)):list;
+  const mx=view.length?view[0].n:1;
+  let h='<section class="panel"><h2>Eniten mainitut henkilöt</h2>';
+  h+='<div class="ctl" style="margin-bottom:10px"><input class="search" style="flex:1 1 200px;max-width:320px;margin:0" id="tq" type="search" placeholder="Hae nimellä" value="'+esc(S.topq)+'" aria-label="Hae nimellä"></div>';
+  h+='<div class="scroll"><table><thead><tr><th></th><th>Nimi</th><th>Ryhmä</th><th class="n">Mainintoja</th><th></th><th class="n">Lähestyjiä</th><th>Kehitys</th></tr></thead><tbody>';
+  view.slice(0,q?100:50).forEach(x=>{
+    const p=PE(x.k);const i=list.indexOf(x)+1;
+    h+='<tr class="row" tabindex="0" data-person="'+x.k+'"><td class="rank">'+i+'.</td><td><b>'+esc(p[0])+'</b><br><span class="muted small">'+esc(p[2]||p[3])+'</span></td><td class="muted">'+esc(pname(D.parties[p[1]]))+pTag(x.k)+'</td><td class="n">'+nf(x.n)+'</td><td class="barcell"><div class="bar" style="width:'+(100*x.n/mx)+'%"></div></td><td class="n">'+nf(x.orgs.size)+'</td><td>'+spark(x.bt)+'</td></tr>';
+  });
+  h+='</tbody></table></div><p class="muted small" style="margin:10px 0 0">Näytetään '+(q?'haun osumat':'50 ensimmäistä')+'. Rivin klikkaus avaa henkilön tiedot.</p></section>';
+  return h;
+}
+
+function setBtn(el,on){el.setAttribute('aria-pressed',on?'true':'false');}
+function syncChips(){
+  document.querySelectorAll('#termCtl .chip[data-t]').forEach(b=>setBtn(b,S.terms.has(+b.dataset.t)));
+  document.querySelectorAll('#typeCtl .chip[data-ty]').forEach(b=>setBtn(b,S.types.has(+b.dataset.ty)));
+  const isDef=D.types.every((n,i)=>S.types.has(i)===DEFTYPES.includes(n));
+  const isAll=D.types.every((n,i)=>S.types.has(i));
+  const pd=document.querySelector('#typeCtl [data-preset="def"]'),pa=document.querySelector('#typeCtl [data-preset="all"]');
+  if(pd)setBtn(pd,isDef);if(pa)setBtn(pa,isAll);
+}
+function render(){
+  for(const [id,t] of [['tabParty','party'],['tabPerson','person'],['tabOrg','org'],['tabTop','top']]) $('#'+id).setAttribute('aria-selected',S.tab===t);
+  syncChips();
+  const fid=document.activeElement&&['q','qo','tq'].includes(document.activeElement.id)?document.activeElement.id:null;
+  $('#main').innerHTML={party:viewParty,person:viewPerson,org:viewOrg,top:viewTop}[S.tab]();
+  if(fid){const q=$('#'+fid);q.focus();q.setSelectionRange(q.value.length,q.value.length);}
+}
+
+function init(){
+  const tc=$('#termCtl');
+  for(const t of [1,2,3,4,5]){
+    const b=document.createElement('button');b.className='chip';b.dataset.t=t;b.textContent=TERMS[t];b.title='Kausi '+t;
+    b.onclick=()=>{ if(S.terms.has(t)){ if(S.terms.size>1)S.terms.delete(t);} else S.terms.add(t); render(); };
+    tc.appendChild(b);
+  }
+  const yc=$('#typeCtl');
+  D.types.forEach((name,i)=>{
+    if(DEFTYPES.includes(name))S.types.add(i);
+    const b=document.createElement('button');b.className='chip';b.dataset.ty=i;b.textContent=name;
+    b.onclick=()=>{ if(S.types.has(i)){ if(S.types.size>1)S.types.delete(i);} else S.types.add(i); render(); };
+    yc.appendChild(b);
+  });
+  const all=document.createElement('button');all.className='chip ghost';all.dataset.preset='all';all.textContent='Kaikki tyypit';all.onclick=()=>{D.types.forEach((_,i)=>S.types.add(i));render();};yc.appendChild(all);
+  const def=document.createElement('button');def.className='chip ghost';def.dataset.preset='def';def.textContent='Edustajat ja ministerit';def.onclick=()=>{S.types.clear();D.types.forEach((n,i)=>{if(DEFTYPES.includes(n))S.types.add(i);});render();};yc.appendChild(def);
+  for(const [id,t] of [['tabParty','party'],['tabPerson','person'],['tabOrg','org'],['tabTop','top']]) $('#'+id).onclick=()=>{S.tab=t;render();};
+  const main=$('#main');
+  main.addEventListener('click',e=>{
+    const og=e.target.closest('[data-org]');if(og){S.org=+og.dataset.org;render();return;}
+    const pr=e.target.closest('[data-party]');if(pr){S.party=+pr.dataset.party;if(S.tab==='org')S.tab='party';render();return;}
+    const pe=e.target.closest('[data-person]');if(pe){S.person=+pe.dataset.person;S.tab='person';render();}
+  });
+  main.addEventListener('keydown',e=>{if(e.key==='Enter'){const r=e.target.closest('tr.row');if(r)r.click();}});
+  main.addEventListener('input',e=>{
+    if(e.target.id==='q'){S.q=e.target.value;render();}
+    if(e.target.id==='qo'){S.qo=e.target.value;render();}
+    if(e.target.id==='tq'){S.topq=e.target.value;render();}
+  });
+  main.addEventListener('change',e=>{
+    if(e.target.id==='pf'){S.pf=e.target.value;render();}
+    if(e.target.id==='ind'){S.ind=e.target.value;render();}
+  });
+  render();
+}
+
+fetch('data.json').then(r=>r.json()).then(d=>{D=d;init();}).catch(()=>{$('#main').innerHTML='<p class="empty">Tietojen lataus epäonnistui. Avaa sivu uudelleen.</p>';});
+</script>
+</body>
+</html>
